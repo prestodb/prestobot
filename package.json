@@ -1,0 +1,34 @@
+{
+  "name": "presto-probot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A Presto Probot App built with Probot",
+  "author": "Jinlin Zhang",
+  "license": "ISC",
+  "homepage": "https://github.com//",
+  "keywords": [
+    "probot",
+    "github",
+    "probot-app"
+  ],
+  "scripts": {
+    "start": "probot run ./index.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "config": "^3.3.8",
+    "js-base64": "^3.7.2",
+    "probot": "^12.2.4"
+  },
+  "devDependencies": {
+    "jest": "^28.1.3",
+    "nock": "^13.0.5",
+    "smee-client": "^1.2.2"
+  },
+  "engines": {
+    "node": ">= 10.13.0"
+  },
+  "jest": {
+    "testEnvironment": "node"
+  }
+}
