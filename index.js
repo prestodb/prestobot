@@ -6,7 +6,8 @@ const { pullRequestReviewSubmitted } = require('./statistics/pull_request_review
 const { pullrequestLabeled, pullrequestUnlabeled } = require('./statistics/pull_request_labels')
 const { pullRequestReviewRequested } = require('./statistics/pull_request_reviewer_requests')
 const { setContext } = require('./util/utils')
-const { pingPullRequests } = require('./pull_request/ping_reviwers')
+const { pingPullRequestReviewers } = require('./pull_request/ping_reviewers')
+const { pingPullRequestAuthor } = require('./pull_request/ping_authors')
 
 /**
  * This is the main entrypoint to your Probot app
@@ -83,7 +84,8 @@ module.exports = (app) => {
   });
 
   setInterval(() => {
-    pingPullRequests();
+    pingPullRequestReviewers();
+    pingPullRequestAuthor();
   }, config.get('ping-stale-interval'));
   */
 
