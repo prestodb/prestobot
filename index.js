@@ -84,8 +84,8 @@ module.exports = (app) => {
   });
 
   setInterval(() => {
-    pingPullRequestReviewers();
-    pingPullRequestAuthor();
+    pingPullRequestReviewers(app);
+    pingPullRequestAuthor(app);
   }, config.get('ping-stale-interval'));
   */
 
