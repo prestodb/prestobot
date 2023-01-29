@@ -83,13 +83,13 @@ module.exports = (app) => {
     await setContext(context);
     pullRequestReviewRequested(context, app);
   });
+  */
 
   setInterval(() => {
-    pingPullRequestReviewers(app);
-    pingPullRequestAuthor(app);
+    // pingPullRequestReviewers(app);
+    // pingPullRequestAuthor(app);
     preLoadPullRequestData(app);
   }, config.get('ping-stale-interval'));
-  */
 
   app.log.info("Presto-bot is up and running!");
 };
