@@ -15,7 +15,7 @@
     "ping-stale-response-days": 7,
     "ping-stale-max-number-prs": 15,
     "_1_hour": "Check stale reviews and requests",
-    "ping-stale-interval": 3600000,
+    "ping-stale-interval": 1800000,
 
     "_comment5": "prestodb / preston",
     "repo": {
