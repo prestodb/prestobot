@@ -26,9 +26,9 @@ async function preLoadPullRequestData(app)
         return;
     }
 
-    // preload 50 PRs per hour
+    // preload 30 PRs per hour
     const client = await getDatabaseClient();
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 30; i++) {
         if (prStartNumber >= prEndNumber && prEndNumber != -1) {
             break;
         }
