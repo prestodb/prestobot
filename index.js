@@ -44,6 +44,7 @@ module.exports = (app) => {
     await tagPullRequest(context);
     await pullRequestReceived(context, app);
   });
+  */
 
   app.on(
       //["commit_comment.created",
@@ -56,6 +57,7 @@ module.exports = (app) => {
       await rerunFailedTests(app, context);
   });
 
+  /*
   app.on("pull_request.closed", async(context) => {
     await setContext(context);
     pullRequestReceived(context, app);
