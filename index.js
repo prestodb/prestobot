@@ -17,9 +17,8 @@ const { preLoadPullRequestsAndIssues } = require('./statistics/pre_load')
 
 module.exports = (app) => {
   // Create tables if not exist
-  creatTablesIfNotExist();
-  
-  /*
+  creatTablesIfNotExist(app);
+
   app.on("issues.opened", async (context) => {
     const issueComment = context.issue({
       body: "Thanks for opening this issue!",
@@ -27,6 +26,7 @@ module.exports = (app) => {
     return context.octokit.issues.createComment(issueComment);
   });
   
+  /*
   app.on("push", async(context) => {
     app.log.info(context);
   });
@@ -35,6 +35,7 @@ module.exports = (app) => {
   app.on("pull_request.synchronize", async(context) => {
     app.log.info(context);
   });
+  */
 
   app.on("pull_request.opened", async(context) => {
     await setContext(context);
@@ -44,7 +45,6 @@ module.exports = (app) => {
     await tagPullRequest(context);
     await pullRequestReceived(context, app);
   });
-  */
 
   app.on(
       //["commit_comment.created",
@@ -57,7 +57,6 @@ module.exports = (app) => {
       await rerunFailedTests(app, context);
   });
 
-  /*
   app.on("pull_request.closed", async(context) => {
     await setContext(context);
     pullRequestReceived(context, app);
@@ -82,11 +81,10 @@ module.exports = (app) => {
     await setContext(context);
     pullRequestReviewRequested(context, app);
   });
-  */
 
   setInterval(() => {
-   // pingPullRequestReviewers(app);
-   // pingPullRequestAuthor(app);
+    pingPullRequestReviewers(app);
+    pingPullRequestAuthor(app);
     preLoadPullRequestsAndIssues(app);
   }, config.get('ping-stale-interval'));
 
