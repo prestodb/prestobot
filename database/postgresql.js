@@ -1,6 +1,7 @@
 const { Client } = require('pg');
 
 async function getDatabaseClient() {
+    console.log("Connecting to database");
     const client = new Client({
         connectionString: process.env.DATABASE_URL,
         ssl: {
@@ -8,6 +9,7 @@ async function getDatabaseClient() {
         }
     });
 
+    console.log("Client Host:Port" + client.host + ":" + client.port);
     await client.connect();
     return client;
 }
