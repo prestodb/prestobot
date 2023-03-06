@@ -16,9 +16,12 @@ const { preLoadPullRequestsAndIssues } = require('./statistics/pre_load')
  */
 
 module.exports = (app) => {
-  // Create tables if not exist
-  creatTablesIfNotExist(app);
+  console.log("Creating tables if not exist");
+  creatTablesIfNotExist(app).then(
+      () => console.log("Tables created")
+  );
 
+  console.log("Handling events")
   app.on("issues.opened", async (context) => {
     const issueComment = context.issue({
       body: "Thanks for opening this issue!",
@@ -88,5 +91,6 @@ module.exports = (app) => {
     preLoadPullRequestsAndIssues(app);
   }, config.get('ping-stale-interval'));
 
+  console.log("Handled Everything")
   app.log.info("Presto-bot is up and running!");
 };
