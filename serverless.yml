@@ -17,6 +17,13 @@ functions:
       GITHUB_TOKEN: ${ssm:/GITHUB_TOKEN}
       LOG_FORMAT: json
 
+    vpc:
+        securityGroupIds:
+          - sg-05aeef8360e67f033
+        subnetIds:
+          - subnet-0feafa3a98245c7fb
+          - subnet-007b83138a9175667
+
     events:
       - http:
           path: /api/github/webhooks
