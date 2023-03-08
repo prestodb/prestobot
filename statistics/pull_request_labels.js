@@ -11,6 +11,7 @@ const deleteFromPrLabels = `DELETE FROM "pr_labels"
         WHERE "pull_request_id" = $1 and "label" = $2`;
 
 async function pullrequestLabeled(context, app) {
+    console.log("pull_request.labeled received.");
     const client = await getDatabaseClient();
     const pullRequestId = context.payload.pull_request.number;
     const label = context.payload.label.name;
@@ -19,19 +20,22 @@ async function pullrequestLabeled(context, app) {
     const pullRequestCreatedAt = context.payload.pull_request.created_at;
     const pullRequestClosedAt = context.payload.pull_request.closed_at;
     const pullRequestMergedAt = context.payload.pull_request.merged_at;
-    const pullReqestStatus = context.payload.pull_request.state.toLowerCase();
+    let pullReqestStatus = context.payload.pull_request.state.toLowerCase();
     if (context.payload.pull_request.merged) {
         pullReqestStatus = "merged";
     }
     
+    console.log("Begin insert into pr_labels");
     client.query('BEGIN', (err, res) => {
         if (err) {
+            console.error('Error BEGIN transaction.', err.stack);
             return rollback(client);
         }
         client.query(selectPullRequestBynumber,
             [pullRequestId],
             (err, res) => {
                 if (err) {
+                    console.error('Error SELECT FROM pull_requests.', err.stack);
                     return rollback(client);
                 }
                 if (res.rowCount == 0) {
@@ -39,6 +43,7 @@ async function pullrequestLabeled(context, app) {
                         [pullRequestId, pullRequestTitle, pullRequestCreatedAt, pullRequestClosedAt, pullRequestMergedAt, pullReqestStatus],
                         (err, res) => {
                             if (err) {
+                                console.error('Error INSERT INTO pull_requests.', err.stack);
                                 return rollback(client);
                             }
                         }
