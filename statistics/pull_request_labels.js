@@ -13,17 +13,25 @@ const deleteFromPrLabels = `DELETE FROM "pr_labels"
 async function pullrequestLabeled(context, app) {
     console.log("pull_request.labeled received.");
     const client = await getDatabaseClient();
+    console.log("Database connected.");
     const pullRequestId = context.payload.pull_request.number;
+    console.log(`pullRequestId=${pullRequestId}`);
     const label = context.payload.label.name;
+    console.log(`label=${label}`);
 
     const pullRequestTitle = context.payload.pull_request.title;
+    console.log(`pullRequestTitle=${pullRequestTitle}`);
     const pullRequestCreatedAt = context.payload.pull_request.created_at;
+    console.log(`pullRequestCreatedAt=${pullRequestCreatedAt}`);
     const pullRequestClosedAt = context.payload.pull_request.closed_at;
+    console.log(`pullRequestClosedAt=${pullRequestClosedAt}`);
     const pullRequestMergedAt = context.payload.pull_request.merged_at;
+    console.log(`pullRequestMergedAt=${pullRequestMergedAt}`);
     let pullReqestStatus = context.payload.pull_request.state.toLowerCase();
     if (context.payload.pull_request.merged) {
         pullReqestStatus = "merged";
     }
+    console.log(`pullReqestStatus=${pullReqestStatus}`);
     
     console.log("Begin insert into pr_labels");
     client.query('BEGIN', (err, res) => {
