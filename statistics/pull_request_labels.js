@@ -39,6 +39,7 @@ async function pullrequestLabeled(context, app) {
                     return rollback(client);
                 }
                 if (res.rowCount == 0) {
+                    console.log("No pull request found, insert it.");
                     client.query(insertIntoPullRequest,
                         [pullRequestId, pullRequestTitle, pullRequestCreatedAt, pullRequestClosedAt, pullRequestMergedAt, pullReqestStatus],
                         (err, res) => {
@@ -49,6 +50,7 @@ async function pullrequestLabeled(context, app) {
                         }
                     );
                 }
+                console.log("Before INSERT into pr_labels.");
                 client.query(insertIntoPrLabels,
                     [pullRequestId, label],
                     (err, res) => {
@@ -58,7 +60,9 @@ async function pullrequestLabeled(context, app) {
                                 ${insertIntoPrLabels}`);
                             return rollback(client);
                         }
+                        console.log("Done INSERT into pr_labels.");
                         client.query('COMMIT', client.end.bind(client));
+                        console.log("Done COMMIT.");
                     }
                 );
             }
