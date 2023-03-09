@@ -17,9 +17,14 @@ const { preLoadPullRequestsAndIssues } = require('./statistics/pre_load')
 
 module.exports = (app) => {
   console.log("Creating tables if not exist");
-  creatTablesIfNotExist(app).then(
-      () => console.log("Tables created")
-  );
+
+  app.onAny(async (context) => {
+    context.log.info({ event: context.name, action: context.payload.action });
+    await creatTablesIfNotExist(app)
+        .then(() => {console.log("table creation complete")})
+        .catch((err) => {console.log("Error creating tables"); console.log(err)}
+    );
+  });
 
   console.log("Handling events")
   app.on("issues.opened", async (context) => {

@@ -8,18 +8,13 @@ async function getDatabaseClient() {
             rejectUnauthorized: false
         }
     });
+    await client.connect()
+        .then(() => console.log('Connected to database: 🎉'))
+        .catch((err) => console.error('ERROR: database connection error', err.stack))
 
-    console.log("Client Host:Port " + client.host + ":" + client.port);
-    client.connect((err) => {
-        if (err) {
-            console.error('connection error', err.stack)
-        } else {
-            console.log('connected')
-        }
-    })
     console.log("Querying Hello World")
     const res = await client.query('SELECT $1::text as message', ['Hello world!'])
-    console.log("Query Response: " + res.rows[0].message)
+    console.log("✨ Query Response: " + res.rows[0].message)
     return client;
 }
 
