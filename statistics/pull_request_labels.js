@@ -83,14 +83,9 @@ async function pullrequestUnlabeled(context, app) {
     const pullRequestId = context.payload.pull_request.number;
     const label = context.payload.label.name;
 
-    client.query(deleteFromPrLabels,
-        [pullRequestId, label],
-        (err, res) => {
-            if (err) {
-                app.log.error(err.message);
-            }
-        }
-    );
+    await client.query(deleteFromPrLabels, [pullRequestId, label])
+        .then(() => console.log(`Label ${label} removed from issue/pullrequest ${pullRequestId}`))
+        .catch((err) => console.error('ERROR: DELETE FROM pr_labels failed.', err.stack));
 }
 
 module.exports = { pullrequestLabeled, pullrequestUnlabeled, insertIntoPrLabels }

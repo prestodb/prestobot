@@ -18,13 +18,9 @@ const { preLoadPullRequestsAndIssues } = require('./statistics/pre_load')
 module.exports = (app) => {
   console.log("Creating tables if not exist");
 
-  app.onAny(async (context) => {
-    context.log.info({ event: context.name, action: context.payload.action });
-    await creatTablesIfNotExist(app)
-        .then(() => {console.log("table creation complete")})
-        .catch((err) => {console.log("Error creating tables"); console.log(err)}
-    );
-  });
+  creatTablesIfNotExist(app).then(
+      () => console.log("Tables created")
+  );
 
   console.log("Handling events")
   app.on("issues.opened", async (context) => {
@@ -67,34 +63,36 @@ module.exports = (app) => {
 
   app.on("pull_request.closed", async(context) => {
     await setContext(context);
-    pullRequestReceived(context, app);
+    await pullRequestReceived(context, app);
   });
 
   app.on("pull_request_review.submitted", async(context) => {
     await setContext(context);
-    pullRequestReviewSubmitted(context, app);
+    await pullRequestReviewSubmitted(context, app);
   });
 
   app.on("pull_request.labeled", async(context) => {
     await setContext(context);
-    pullrequestLabeled(context, app);
+    await pullrequestLabeled(context, app);
   });
 
   app.on("pull_request.unlabeled", async(context) => {
     await setContext(context);
-    pullrequestUnlabeled(context, app);
+    await pullrequestUnlabeled(context, app);
   });
 
   app.on("pull_request.review_requested", async(context) => {
     await setContext(context);
-    pullRequestReviewRequested(context, app);
+    await pullRequestReviewRequested(context, app);
   });
 
+/*
   setInterval(() => {
     pingPullRequestReviewers(app);
     pingPullRequestAuthor(app);
     preLoadPullRequestsAndIssues(app);
   }, config.get('ping-stale-interval'));
+*/
 
   console.log("Handled Everything")
   app.log.info("Presto-bot is up and running!");
