@@ -15,67 +15,35 @@ async function pullrequestLabeled(context, app) {
     const client = await getDatabaseClient();
     console.log("Database connected.");
     const pullRequestId = context.payload.pull_request.number;
-    console.log(`pullRequestId=${pullRequestId}`);
     const label = context.payload.label.name;
-    console.log(`label=${label}`);
 
     const pullRequestTitle = context.payload.pull_request.title;
-    console.log(`pullRequestTitle=${pullRequestTitle}`);
     const pullRequestCreatedAt = context.payload.pull_request.created_at;
-    console.log(`pullRequestCreatedAt=${pullRequestCreatedAt}`);
     const pullRequestClosedAt = context.payload.pull_request.closed_at;
-    console.log(`pullRequestClosedAt=${pullRequestClosedAt}`);
     const pullRequestMergedAt = context.payload.pull_request.merged_at;
-    console.log(`pullRequestMergedAt=${pullRequestMergedAt}`);
     let pullReqestStatus = context.payload.pull_request.state.toLowerCase();
     if (context.payload.pull_request.merged) {
         pullReqestStatus = "merged";
     }
-    console.log(`pullReqestStatus=${pullReqestStatus}`);
     
-    console.log("Begin insert into pr_labels");
-    client.query('BEGIN', (err, res) => {
-        if (err) {
-            console.error('Error BEGIN transaction.', err.stack);
-            return rollback(client);
+    try {
+        const prRes = await client.query(selectPullRequestBynumber, [pullRequestId]);
+        if (prRes.rowCount == 0) {
+            console.log("No pull request found, insert it.");
+            await client.query(insertIntoPullRequest,
+                [pullRequestId, pullRequestTitle, pullRequestCreatedAt, pullRequestClosedAt, pullRequestMergedAt, pullReqestStatus])
+                .then(() => console.log(`Inserted issue/pull request ${pullRequestId}`))
+                .catch((err) => console.error('ERROR: Error INSERT INTO pull_requests.', err.stack));
         }
-        client.query(selectPullRequestBynumber,
-            [pullRequestId],
-            (err, res) => {
-                if (err) {
-                    console.error('Error SELECT FROM pull_requests.', err.stack);
-                    return rollback(client);
-                }
-                if (res.rowCount == 0) {
-                    console.log("No pull request found, insert it.");
-                    client.query(insertIntoPullRequest,
-                        [pullRequestId, pullRequestTitle, pullRequestCreatedAt, pullRequestClosedAt, pullRequestMergedAt, pullReqestStatus],
-                        (err, res) => {
-                            if (err) {
-                                console.error('Error INSERT INTO pull_requests.', err.stack);
-                                return rollback(client);
-                            }
-                        }
-                    );
-                }
-                console.log("Before INSERT into pr_labels.");
-                client.query(insertIntoPrLabels,
-                    [pullRequestId, label],
-                    (err, res) => {
-                        if (err) {
-                            app.log.error(`Insert into pr_labels failed:
-                                ${err.message}. 
-                                ${insertIntoPrLabels}`);
-                            return rollback(client);
-                        }
-                        console.log("Done INSERT into pr_labels.");
-                        client.query('COMMIT', client.end.bind(client));
-                        console.log("Done COMMIT.");
-                    }
-                );
-            }
-        );
-    });
+
+        console.log("Before INSERT into pr_labels.");
+        await client.query(insertIntoPrLabels, [pullRequestId, label])
+            .then(() => console.log("Done INSERT into pr_labels."))
+            .catch((err) => console.error('Insert into pr_labels failed', err.stack));
+    }
+    finally {
+        await client.end();
+    }
 }
 
 async function pullrequestUnlabeled(context, app) {
@@ -86,6 +54,7 @@ async function pullrequestUnlabeled(context, app) {
     await client.query(deleteFromPrLabels, [pullRequestId, label])
         .then(() => console.log(`Label ${label} removed from issue/pullrequest ${pullRequestId}`))
         .catch((err) => console.error('ERROR: DELETE FROM pr_labels failed.', err.stack));
+    await client.end();
 }
 
 module.exports = { pullrequestLabeled, pullrequestUnlabeled, insertIntoPrLabels }
