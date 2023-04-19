@@ -11,9 +11,7 @@ const deleteFromPrLabels = `DELETE FROM "pr_labels"
         WHERE "pull_request_id" = $1 and "label" = $2`;
 
 async function pullrequestLabeled(context, app) {
-    console.log("pull_request.labeled received.");
     const client = await getDatabaseClient();
-    console.log("Database connected.");
     const pullRequestId = context.payload.pull_request.number;
     const label = context.payload.label.name;
 
@@ -21,29 +19,46 @@ async function pullrequestLabeled(context, app) {
     const pullRequestCreatedAt = context.payload.pull_request.created_at;
     const pullRequestClosedAt = context.payload.pull_request.closed_at;
     const pullRequestMergedAt = context.payload.pull_request.merged_at;
-    let pullReqestStatus = context.payload.pull_request.state.toLowerCase();
+    const pullReqestStatus = context.payload.pull_request.state.toLowerCase();
     if (context.payload.pull_request.merged) {
         pullReqestStatus = "merged";
     }
     
-    try {
-        const prRes = await client.query(selectPullRequestBynumber, [pullRequestId]);
-        if (prRes.rowCount == 0) {
-            console.log("No pull request found, insert it.");
-            await client.query(insertIntoPullRequest,
-                [pullRequestId, pullRequestTitle, pullRequestCreatedAt, pullRequestClosedAt, pullRequestMergedAt, pullReqestStatus])
-                .then(() => console.log(`Inserted issue/pull request ${pullRequestId}`))
-                .catch((err) => console.error('ERROR: Error INSERT INTO pull_requests.', err.stack));
+    client.query('BEGIN', (err, res) => {
+        if (err) {
+            return rollback(client);
         }
-
-        console.log("Before INSERT into pr_labels.");
-        await client.query(insertIntoPrLabels, [pullRequestId, label])
-            .then(() => console.log("Done INSERT into pr_labels."))
-            .catch((err) => console.error('Insert into pr_labels failed', err.stack));
-    }
-    finally {
-        await client.end();
-    }
+        client.query(selectPullRequestBynumber,
+            [pullRequestId],
+            (err, res) => {
+                if (err) {
+                    return rollback(client);
+                }
+                if (res.rowCount == 0) {
+                    client.query(insertIntoPullRequest,
+                        [pullRequestId, pullRequestTitle, pullRequestCreatedAt, pullRequestClosedAt, pullRequestMergedAt, pullReqestStatus],
+                        (err, res) => {
+                            if (err) {
+                                return rollback(client);
+                            }
+                        }
+                    );
+                }
+                client.query(insertIntoPrLabels,
+                    [pullRequestId, label],
+                    (err, res) => {
+                        if (err) {
+                            app.log.error(`Insert into pr_labels failed:
+                                ${err.message}. 
+                                ${insertIntoPrLabels}`);
+                            return rollback(client);
+                        }
+                        client.query('COMMIT', client.end.bind(client));
+                    }
+                );
+            }
+        );
+    });
 }
 
 async function pullrequestUnlabeled(context, app) {
@@ -51,10 +66,14 @@ async function pullrequestUnlabeled(context, app) {
     const pullRequestId = context.payload.pull_request.number;
     const label = context.payload.label.name;
 
-    await client.query(deleteFromPrLabels, [pullRequestId, label])
-        .then(() => console.log(`Label ${label} removed from issue/pullrequest ${pullRequestId}`))
-        .catch((err) => console.error('ERROR: DELETE FROM pr_labels failed.', err.stack));
-    await client.end();
+    client.query(deleteFromPrLabels,
+        [pullRequestId, label],
+        (err, res) => {
+            if (err) {
+                app.log.error(err.message);
+            }
+        }
+    );
 }
 
 module.exports = { pullrequestLabeled, pullrequestUnlabeled, insertIntoPrLabels }
