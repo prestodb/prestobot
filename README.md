@@ -90,7 +90,7 @@ Now the app is running and listening on port# 3000.
     * Visit http://localhost:3000
     * On the page click Register Github app.
     * Give an app name that is not taken already. In our case, it is prestoprobot.
-    * After registering your GitHub App, you'll be redirected to install the app on any repositories. At the same time, you can check your local .env and notice it has been populated with all the data you need.
+    * After registering your GitHub App, you'll be redirected to install the app on any repositories. At the same time, you can check your local .env and notice it will be populated with all the data you need.
 
 ### Installing prestoprobot
 
@@ -258,5 +258,5 @@ Comment a PR with "@prestobot kick off tests" will rerun the failed tests.
 * Load issue and pull request data to database
 
 Connect to Perstobot database and insert a row into tasks table:
-`insert into tasks (task, param, status) values('preload', '{"start_num": <start_num>, "end_num": <end_num>, "overwrite": true}', 'open');`
-For example, `insert into tasks (task, param, status) values('preload', '{"start_num": 1, "end_num": 19090, "overwrite": true}', 'open');` will start loading data for issues and pull requests from number 1 to number 19090(exclusive).
+`insert into tasks (task, param, status) values('preload', '{"start_num": <start_num>, "end_num": <end_num, "overwrite": true}', 'open');`
+For example, `insert into tasks (task, param, status) values('preload', '{"start_num": 1, "end_num": 19090, "overwrite": true}', 'open');` will start loading data for issues and pull requests from number 1 to number 19090.
